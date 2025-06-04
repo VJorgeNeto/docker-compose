@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: zabbix-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: zbxTraining70!
+      MYSQL_DATABASE: zabbix
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: BlueSky67Fox!
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - zabbix-net
+
+  zabbix-server:
+    build: ./zabbix
+    container_name: zabbix-server
+    depends_on:
+      - mysql
+    environment:
+      DB_SERVER_HOST: mysql
+      MYSQL_ROOT_PASSWORD: zbxTraining70!
+      ZABBIX_DB_PASSWORD: BlueSky67Fox!
+    ports:
+      - "8080:80"
+      - "10051:10051"
+    networks:
+      - zabbix-net
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent:alpine-7.0-latest
+    container_name: zabbix-agent
+    environment:
+      ZBX_SERVER_HOST: zabbix-server
+      HOSTNAME: "docker-agent"
+    networks:
+      - zabbix-net
+
+volumes:
+  mysql_data:
+
+networks:
+  zabbix-net:
